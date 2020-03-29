@@ -18,7 +18,11 @@ function oncancel {
 }
 trap oncancel SIGINT SIGTERM SIGKILL
 
-cat | docker run --rm -i --name "$DNAME" \
+PWDCMD="$1"
+shift 1
+
+{ eval "$PWDCMD" ; echo "__EMAILSTART__"; cat ; } \
+| docker run --rm -i --name "$DNAME" \
       -e TLS="${TLS:-on}" -e mailhub="$MAILHUB" -e mailport="$MAILPORT" \
       -e user="$USER" -e from="$FROM" \
       docker-msmtp "$@" &
