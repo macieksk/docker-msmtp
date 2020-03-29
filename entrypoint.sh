@@ -12,9 +12,8 @@ set -eu
 
 ## The password is taken from a first line from stdin.
 ## Subsequent lines are passed to msmtp.
-mkfifo .mailfifo
-mkfifo /root/.secret
-chmod 600 /root/.secret
+mkfifo --mode=600 .mailfifo
+mkfifo --mode=600 /root/.secret
 cat | parallel --pipe -u -N 1 --tmpdir /dev/shm \
         --recend '__EMAILSTART__\n' --removerecsep \
         'if [ {#} -eq 1 ]; then sponge > /root/.secret; \
