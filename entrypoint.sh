@@ -38,5 +38,12 @@ useTLS="${TLS:-on}"
   > "$conf" 
 #cat "$conf"
 
-< .mailfifo msmtp "$@"
+LOG="/dev/shm/msmtp.log"
+
+< .mailfifo msmtp -X "$LOG" "$@" &
+PID="$!"
+##Make sure logs are output
+tail -F "$LOG" --pid="$PID" 2>/dev/null
+
+wait "$PID" 
 
