@@ -29,6 +29,11 @@ RUN apt-get update && apt-get install -y \
         moreutils \
     && apt_vacuum
 
+## Uncomment here to update certificates
+#RUN apt-get update && apt-get install -y \
+#        ca-certificates \
+#    && apt_vacuum
+
 COPY msmtprc_custom.conf /etc/msmtprc_custom
 COPY entrypoint.sh /usr/local/bin/
 ENTRYPOINT ["/bin/bash","/usr/local/bin/entrypoint.sh"]
