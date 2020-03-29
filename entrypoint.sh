@@ -12,9 +12,9 @@ set -eu
 ## The password is taken from a first line from stdin.
 ## Subsequent lines are passed to msmtp.
 mkfifo .mailfifo
-cat | parallel --pipe -uj1 -N 1 --tmpdir /dev/shm \
+cat | parallel --pipe -k -uj1 -N 1 --tmpdir /dev/shm \
         'if [ {#} -eq 1 ]; then cat > /root/.secret; \
-         else cat > .mailfifo; fi' &
+         else cat; fi' > .mailfifo &
 ## It's verified there is no race condition for input with msmtp below
 
 conf='/etc/msmtprc'
