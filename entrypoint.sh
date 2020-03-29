@@ -1,29 +1,40 @@
 #!/bin/bash
 ## Derived from https://hub.docker.com/r/philoles/ssmtp/ , 2020 
 #
-# e.g.
-# TLS=YES
-# mailhub=smtp.gmail.com:587
-# AuthUser=xxxx@gmail.com
-# AuthPass=xxx
+# Define environmental variables e.g.:
+# TLS=on
+# mailhub=smtp.gmail.com
+# mailport=587
+# user=xxxx@gmail.com
 
-conf='/etc/ssmtp/ssmtp.conf'
-conf_custom='/etc/ssmtp/ssmtp_custom.conf'
-UseTLS=${TLS:-'NO'}
-UseSTARTTLS=${TLS:-'NO'}
+set -eu
 
-[ ! $mailhub ] && echo 'mailhub is not set. eg: smtp.gmail.com:587' && exit 1
-[ ! $AuthUser ] && echo 'AuthUser is not set. eg: xxxx@gmail.com' && exit 1
-[ ! $AuthPass ] && echo 'AuthPass is not set' && exit 1
+## The password is taken from a first line from stdin.
+## Subsequent lines are passed to msmtp.
+mkfifo .mailfifo
+cat | parallel --pipe -uj1 -N 1 --tmpdir /dev/shm \
+        'if [ {#} -eq 1 ]; then cat > /root/.secret; \
+         else cat > .mailfifo; fi' &
+## It's verified there is no race condition for input with msmtp below
 
-sed -i "s|{{ mailhub }}|$mailhub|g" $conf_custom
-sed -i "s|{{ AuthUser }}|$AuthUser|g" $conf_custom
-sed -i "s|{{ AuthPass }}|$AuthPass|g" $conf_custom
-sed -i "s|{{ UseTLS }}|$UseTLS|g" $conf_custom
-sed -i "s|{{ UseSTARTTLS }}|$UseSTARTTLS|g" $conf_custom
+conf='/etc/msmtprc'
+conf_custom='/etc/msmtprc_custom'
+useTLS="${TLS:-on}"
 
-rm -f $conf
-cp -f $conf_custom $conf
+[ ! "$mailhub" ] && echo 'mailhub is not set. eg: smtp.gmail.com' && exit 1
+[ ! "$mailport" ] && echo 'mailport is not set. eg: 587' && exit 1
+[ ! "$user" ] && echo 'user is not set. eg: xxxx@gmail.com' && exit 1
+[ ! "$from" ] && echo 'from is not set. eg: xxxx@gmail.com' && exit 1
+#[ ! $pass ] && echo 'pass is not set' && exit 1
 
-exec "$@"
+sed -i "s|{{ mailhub }}|$mailhub|g; s|{{ mailport }}|$mailport|g; \
+        s|{{ user }}|$user|g;       s|{{ useTLS }}|$useTLS|g; \
+        s|{{ from }}|$from|g"  $conf_custom
+#sed -i "s|{{ pass }}|$pass|g" $conf_custom
 
+cp -f "$conf_custom" "$conf"
+#cat $conf
+
+cat .mailfifo | msmtp "$@"
+
+rm /root/.secret

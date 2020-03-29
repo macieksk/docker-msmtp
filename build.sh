@@ -2,7 +2,7 @@
 set -eux
 
 VER="v$1"
-DNAME="docker-ssmtp"
+DNAME="docker-msmtp"
 
 docker build --progress plain -t "$DNAME":"$VER" .
 docker tag "$DNAME":"$VER" "$DNAME":latest
