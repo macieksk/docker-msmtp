@@ -5,17 +5,21 @@
 # TLS=on
 # mailhub=smtp.gmail.com
 # mailport=587
-# user=xxxx@gmail.com
+# user=xxxx  # often xxxx@gmail.com
+# from=xxxx@gmail.com
 
 set -eu
 
 ## The password is taken from a first line from stdin.
 ## Subsequent lines are passed to msmtp.
 mkfifo .mailfifo
-cat | parallel --pipe -k -uj1 -N 1 --tmpdir /dev/shm \
-        'if [ {#} -eq 1 ]; then cat > /root/.secret; \
-         else cat; fi' > .mailfifo &
-## It's verified there is no race condition for input with msmtp below
+mkfifo /root/.secret
+chmod 600 /root/.secret
+cat | parallel --pipe -u -N 1 --tmpdir /dev/shm \
+        --recend '__EMAILSTART__\n' --removerecsep \
+        'if [ {#} -eq 1 ]; then sponge > /root/.secret; \
+         else cat > .mailfifo; fi' &
+## It's been verified there is no race condition for input with msmtp below
 
 conf='/etc/msmtprc'
 conf_custom='/etc/msmtprc_custom'
@@ -27,14 +31,12 @@ useTLS="${TLS:-on}"
 [ ! "$from" ] && echo 'from is not set. eg: xxxx@gmail.com' && exit 1
 #[ ! $pass ] && echo 'pass is not set' && exit 1
 
-sed -i "s|{{ mailhub }}|$mailhub|g; s|{{ mailport }}|$mailport|g; \
+< "$conf_custom" \
+  sed "s|{{ mailhub }}|$mailhub|g; s|{{ mailport }}|$mailport|g; \
         s|{{ user }}|$user|g;       s|{{ useTLS }}|$useTLS|g; \
-        s|{{ from }}|$from|g"  $conf_custom
-#sed -i "s|{{ pass }}|$pass|g" $conf_custom
+        s|{{ from }}|$from|g" \
+  > "$conf" 
+#cat "$conf"
 
-cp -f "$conf_custom" "$conf"
-#cat $conf
+< .mailfifo msmtp "$@"
 
-cat .mailfifo | msmtp "$@"
-
-rm /root/.secret

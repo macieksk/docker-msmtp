@@ -25,6 +25,10 @@ RUN wget -nv https://mirrors.tripadvisor.com/gnu/parallel/parallel-latest.tar.bz
     && mkdir -p /root/.parallel \
     && touch /root/.parallel/will-cite
 
+RUN apt-get update && apt-get install -y \
+        moreutils \
+    && apt_vacuum
+
 COPY msmtprc_custom.conf /etc/msmtprc_custom
 COPY entrypoint.sh /usr/local/bin/
 ENTRYPOINT ["/bin/bash","/usr/local/bin/entrypoint.sh"]
