@@ -1,0 +1,4 @@
+
+echo "Message body" | ./docker-msmtp_send_mail.sh user@gmail.com "Test mail"
+./docker-msmtp_send_mail.sh user@gmail.com "Test mail with attachments" directory_with_attachments/ <<< "Message body"
+
