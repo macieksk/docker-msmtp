@@ -1,13 +1,15 @@
 #!/bin/bash
 set -eu #x
 
-## Usage: { cat ~/.ssh/gmail_secret ; echo -e "Subject: msmtp test\nhello test." ; } | docker-msmtp.sh recipient@gmail.com
-## These variables need to be defined:
+## Usage: echo -e "Subject: msmtp test\nhello test." | docker-msmtp.sh recipient@gmail.com
+## These environment variables need to be defined:
 #MAILHUB="smtp.gmail.com" 
 #MAILPORT="587"
 #TLS="on"
 #USER="user@gmail.com"
 #FROM="user@gmail.com"
+#PWDCMD="gpg --decrypt ~/.ssh/gmail_secret.gpg"
+#PWDCMD="cat ~/.ssh/gmail_secret"
 
 DNAME="$(basename "$(mktemp -u -t 'msmtp_XXXXXXXX')")"
 function oncancel {
@@ -17,9 +19,6 @@ function oncancel {
     exit 1
 }
 trap oncancel SIGINT SIGTERM SIGKILL
-
-PWDCMD="$1"
-shift 1
 
 { eval "$PWDCMD" ; echo "__EMAILSTART__"; cat ; } \
 | docker run --rm -i --name "$DNAME" \
