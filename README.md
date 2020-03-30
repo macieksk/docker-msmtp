@@ -6,6 +6,7 @@ vim "$HOME/.mailconf.yaml"  # edit your mail config
 
 ## Verify your settings
 Option -P prints msmtp settings. Make sure your `PWDCMD` from `$HOME/.mailconf.yaml` outputs a non-empty string.
+Password is passed securely through pipes.
 
 `echo | ./docker-msmtp_send_mail.sh bogus@email.com "Test" '' -P`
 
