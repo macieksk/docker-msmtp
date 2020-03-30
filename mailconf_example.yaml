@@ -1,0 +1,7 @@
+MAILHUB: smtp.gmail.com
+MAILPORT: 587
+TLS: on
+USER: user@gmail.com
+FROM: user@gmail.com
+#PWDCMD: cat ~/.ssh/gmail_secret
+PWDCMD: gpg --decrypt ~/.ssh/gmail_secret.gpg
