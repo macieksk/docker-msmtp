@@ -51,7 +51,7 @@ Sends the contents of a directory as a MIME message to output (default /dev/stdo
     if args.message:
         msg.set_content(args.message)
     
-    if directory is not None:
+    if directory:
         for filename in os.listdir(directory):
             path = os.path.join(directory, filename)
             if not os.path.isfile(path):
