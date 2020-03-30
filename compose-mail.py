@@ -38,6 +38,8 @@ Sends the contents of a directory as a MIME message to output (default /dev/stdo
                         help='Message Subject: field.')
     parser.add_argument('-m', '--message', required=False, default=None, type=str,
                         help='Message body. If - then the message is taken from stdin.')
+    parser.add_argument('-l', '--html', required=False, default=None, type=str,
+                        help='Message html body. If - then the source is taken from stdin.')
     args = parser.parse_args()
     directory = args.directory
     #if not directory:
@@ -53,7 +55,12 @@ Sends the contents of a directory as a MIME message to output (default /dev/stdo
             msg.set_content(sys.stdin.read())
         else:
             msg.set_content(args.message)
-    
+    if args.html:
+        if args.html=='-': 
+            msg.add_alternative(sys.stdin.read(), subtype='html')    
+        else:
+            msg.add_alternative(args.html, subtype='html')    
+
     if directory:
         for filename in os.listdir(directory):
             path = os.path.join(directory, filename)

@@ -3,6 +3,8 @@ set -eu -o pipefail
 
 ATTACHMENTSDIR=""
 PWDCMD="echo"
+#MSGTYPE="l" ## m for text, l for html
+MSGTYPE="m"
 
 YAMLCONF="mailconf.yaml"
 TO="$1"     ## "address@email.com, address2@email2.com"
@@ -29,7 +31,7 @@ export PWDCMD="${conf_PWDCMD[0]}"
 set +x
 
 #echo -e "From: $FROM\nTo: $TO\nSubject: $SUBJECT\n\n$(cat)" \
-"$SCRIPTDIR"/compose-mail.py -f "$FROM" -r "$TO" -s "$SUBJECT" -d "$ATTACHMENTSDIR" -m - \
+"$SCRIPTDIR"/compose-mail.py -f "$FROM" -r "$TO" -s "$SUBJECT" -d "$ATTACHMENTSDIR" -"$MSGTYPE" - \
  | "$SCRIPTDIR"/docker-msmtp.sh -t "$TO" "$@"
 
 #export PWDCMD="echo"
