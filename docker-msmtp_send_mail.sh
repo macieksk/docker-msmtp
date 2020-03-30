@@ -1,17 +1,16 @@
 #!/bin/bash
 set -eu -o pipefail
 
-ATTACHMENTSDIR=""
-PWDCMD="echo"
-#MSGTYPE="l" ## m for text, l for html
-MSGTYPE="m"
+#MSGTYPE="${MSGTYPE:-l}" ## m for text, l for html
+MSGTYPE="${MSGTYPE:-m}"
+YAMLCONF="${YAMLCONF:-$HOME/.mailconf.yaml}"
 
-YAMLCONF="mailconf.yaml"
 TO="$1"     ## "address@email.com, address2@email2.com"
 SUBJECT="$2"
 shift 2
 set +u
-if [ -n "$1" ]; then ATTACHMENTSDIR="$1"; shift 1; fi
+if [ -n "$1" ]; then ATTACHMENTSDIR="$1"; shift 1;
+else ATTACHMENTSDIR=""; fi
 set -u
 
 SCRIPTDIR="$(dirname "$(realpath "$0")")"
@@ -28,6 +27,7 @@ export FROM="${conf_FROM[0]}" #="user@gmail.com"
 export PWDCMD="${conf_PWDCMD[0]}"
 #export PWDCMD="gpg --decrypt ~/.ssh/gmail_secret.gpg"
 #export PWDCMD="cat ~/.ssh/gmail_secret"
+#export PWDCMD="echo"
 set +x
 
 #echo -e "From: $FROM\nTo: $TO\nSubject: $SUBJECT\n\n$(cat)" \
