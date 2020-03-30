@@ -11,6 +11,9 @@ set -eu #x
 #PWDCMD="gpg --decrypt ~/.ssh/gmail_secret.gpg"
 #PWDCMD="cat ~/.ssh/gmail_secret"
 
+DOCKERUSER="macieksk/" ## Obligatory /
+#DOCKERUSER="" ## Leave empty for own build
+
 DNAME="$(basename "$(mktemp -u -t 'msmtp_XXXXXXXX')")"
 function oncancel {
     set -eux;
@@ -24,6 +27,6 @@ trap oncancel SIGINT SIGTERM SIGKILL
 | docker run --rm -i --name "$DNAME" \
       -e TLS="${TLS:-on}" -e mailhub="$MAILHUB" -e mailport="$MAILPORT" \
       -e user="$USER" -e from="$FROM" \
-      docker-msmtp "$@" &
+      "$DOCKERUSER"docker-msmtp "$@" &
 wait
 
