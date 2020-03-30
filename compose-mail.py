@@ -58,8 +58,10 @@ Sends the contents of a directory as a MIME message to output (default /dev/stdo
     if args.html:
         if args.html=='-': 
             msg.add_alternative(sys.stdin.read(), subtype='html')    
+            #msg.set_content(sys.stdin.read(), subtype='html')    
         else:
             msg.add_alternative(args.html, subtype='html')    
+            #msg.set_content(args.html, subtype='html')    
 
     if directory:
         for filename in os.listdir(directory):
