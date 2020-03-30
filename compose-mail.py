@@ -4,7 +4,7 @@
 
 """Send the contents of a directory as a MIME message."""
 
-import os
+import os, sys
 #import smtplib
 # For guessing MIME type based on file name extension
 import mimetypes
@@ -37,7 +37,7 @@ Sends the contents of a directory as a MIME message to output (default /dev/stdo
     parser.add_argument('-s', '--subject', required=False, default=None, type=str,
                         help='Message Subject: field.')
     parser.add_argument('-m', '--message', required=False, default=None, type=str,
-                        help='Message body.')
+                        help='Message body. If - then the message is taken from stdin.')
     args = parser.parse_args()
     directory = args.directory
     #if not directory:
@@ -49,7 +49,10 @@ Sends the contents of a directory as a MIME message to output (default /dev/stdo
     msg['From'] = args.sender
     msg.preamble = '' #You will not see this in a MIME-aware mail reader.\n'
     if args.message:
-        msg.set_content(args.message)
+        if args.message=='-': 
+            msg.set_content(sys.stdin.read())
+        else:
+            msg.set_content(args.message)
     
     if directory:
         for filename in os.listdir(directory):

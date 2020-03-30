@@ -29,7 +29,7 @@ export PWDCMD="${conf_PWDCMD[0]}"
 set +x
 
 #echo -e "From: $FROM\nTo: $TO\nSubject: $SUBJECT\n\n$(cat)" \
-"$SCRIPTDIR"/compose-mail.py -f "$FROM" -r "$TO" -s "$SUBJECT" -d "$ATTACHMENTSDIR" -m "$(cat)" \
+"$SCRIPTDIR"/compose-mail.py -f "$FROM" -r "$TO" -s "$SUBJECT" -d "$ATTACHMENTSDIR" -m - \
  | "$SCRIPTDIR"/docker-msmtp.sh -t "$TO" "$@"
 
 #export PWDCMD="echo"
