@@ -1,6 +1,7 @@
 #!/bin/bash
 set -eu #x
 
+VER="v0.3"
 ## Usage: echo -e "Subject: msmtp test\nhello test." | docker-msmtp.sh recipient@gmail.com
 ## These environment variables need to be defined:
 #MAILHUB="smtp.gmail.com" 
@@ -23,10 +24,10 @@ function oncancel {
 }
 trap oncancel SIGINT SIGTERM SIGKILL
 
-{ eval "$PWDCMD" ; echo "__EMAILSTART__"; cat ; } \
+{ eval "$PWDCMD" ; echo "_.___EMAILSTART___._"; cat ; } \
 | docker run --rm -i --name "$DNAME" \
       -e TLS="${TLS:-on}" -e mailhub="$MAILHUB" -e mailport="$MAILPORT" \
       -e user="$USER" -e from="$FROM" \
-      "$DOCKERUSER"docker-msmtp "$@" &
+      "$DOCKERUSER"docker-msmtp:"$VER" "$@" &
 wait
 

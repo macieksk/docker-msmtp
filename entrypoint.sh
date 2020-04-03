@@ -15,7 +15,7 @@ set -eu
 mkfifo --mode=600 .mailfifo
 mkfifo --mode=600 /root/.secret
 cat | parallel --pipe -u -N 1 --tmpdir /dev/shm \
-        --recend '__EMAILSTART__\n' --removerecsep \
+        --recend '_.___EMAILSTART___._\n' --removerecsep \
         'if [ {#} -eq 1 ]; then sponge > /root/.secret; \
          else cat > .mailfifo; fi' &
 ## It's been verified there is no race condition for input with msmtp below
